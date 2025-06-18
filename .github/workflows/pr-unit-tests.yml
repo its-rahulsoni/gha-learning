@@ -104,7 +104,7 @@ jobs:
 
       - name: Build with Maven
         # This step builds your Java project using Maven by running the command:
-        run: mvn clean test
+        run: mvn clean verify
 
       # This is just a human-readable label for the step. Appears in the Actions tab UI.
       - name: Code Coverage Reporter Action
