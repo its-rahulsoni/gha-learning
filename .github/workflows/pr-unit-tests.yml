@@ -105,3 +105,6 @@ jobs:
       - name: Build with Maven
         # This step builds your Java project using Maven by running the command:
         run: mvn clean install
+
+#🧠 In Simple Terms:
+# This workflow automatically runs unit tests whenever someone opens or updates a PR that is trying to merge into main or master.
