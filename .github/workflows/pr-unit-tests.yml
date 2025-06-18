@@ -1,20 +1,107 @@
+# This is the name of the workflow, as it will appear in the "Actions" tab in GitHub.
+# It helps you identify what this workflow does. Here, it's used to indicate this workflow is for running unit tests.
 name: Unit Tests
 
+# This defines the trigger—when should this workflow run?
+# GitHub Actions supports several triggers like push, pull_request, schedule, workflow_dispatch, etc.
 on:
+  # This means the workflow will run when a pull request (PR) is opened, updated, or synchronized (e.g., new commits pushed) targeting the specified branches.
   pull_request:
+    # This restricts the trigger to PRs that are targeting the main or master branches only.
+    # Example:
+    # ✅ If a PR is made from feature/login → main: this workflow runs
+    # ❌ If a PR is made from feature/login → develop: this workflow does not run
     branches: [ main,master ]
 
+# This defines a block for all jobs in the workflow.
+# A workflow can have one or many jobs, each performing independent or dependent tasks.
 jobs:
+  # This is a custom name (identifier) for the job.
+  # You could name it anything (test, deploy, lint, etc.)—build is just an identifier.
   build:
+    # This is the human-readable name that will show in the GitHub Actions UI under the "Jobs" section.
+    # While build is internal, unit-tests is what you'll see in the GitHub web interface.
+    name: unit-tests
+    # Specifies the runner environment for the job.
+    # ubuntu-latest means GitHub will spin up a fresh Ubuntu virtual machine for your job to run in.
     runs-on: ubuntu-latest
+    # A job is made up of multiple steps, which are the actual commands or actions executed in order.
+    # Steps can include:
+    # Shell commands (run: mvn clean install)
+    # Reusable GitHub Actions (uses: actions/checkout@v3)
+    # Caching, setup, testing, building, deployment, etc.
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # 🧠 Purpose:
+      # This step checks out your source code from the GitHub repository into the runner (the virtual machine executing your workflow).
+      #
+      # Without this step, your workflow would run on an empty runner — it wouldn’t have access to your project files like pom.xml, Java classes, or anything else from the repo.
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
+        # This is a descriptive name shown in the GitHub Actions logs so you can easily identify the step.
+      - name: Checkout code
+        # This tells GitHub to use the official checkout action, version 3.
+        # It does the following:
+        # Clones your repository onto the runner.
+        # Makes the latest commit (or PR-specific commit) available for the workflow to act on.
+        uses: actions/checkout@v3
         with:
+          # Fetch all history (useful for tools like git log or git diff)
+          fetch-depth: 0
+
+      # ✅ What This Step Does
+      # This step sets up Java 17 in the GitHub Actions runner environment, so that any following steps (like compiling code, running tests,
+      # building artifacts, etc.) can use Java.
+
+        # A human-readable name for the step (shown in GitHub Actions logs/UI).
+      - name: Set up Java 17
+        # This assigns an ID to the step so you can reference its outputs later in the workflow using ${{ steps.setup_java.outputs.<output_name> }} if needed.
+        id: setup_java
+        # This is the official GitHub-provided action to install and configure Java in the runner.
+        # @v3 means you're using version 3 of this action.
+        uses: actions/setup-java@v3
+        # Provides configuration parameters to the action:
+        with:
+          # Specifies that Java 17 should be installed.
+          # You can change this to '11', '21', etc., depending on your project’s requirement.
           java-version: '17'
+          # Chooses the JDK distribution. In this case:
+          # temurin is from Eclipse Temurin (the successor to AdoptOpenJDK).
+          # Other supported values include zulu, corretto, liberica, etc.
+          # Temurin is widely used and trusted.
+          distribution: 'temurin'
+          # This tells the action not to overwrite your existing settings.xml file (used by Maven or sbt).
+          # Set this to true if you want it to auto-generate or override settings.
+          # In CI/CD workflows, this is often kept false to avoid losing custom settings.
+          overwrite-settings: 'false'
+          #  it automatically enables caching for Maven dependencies. This helps speed up your workflow by reusing previously downloaded Maven packages (JARs)
+          # instead of re-downloading them every time.
+          cache: 'maven'
+
+      #✅ Summary:
+      # This section:
+      # Speeds up build times by caching .m2 (Maven dependencies).
+      # Uses hashes of pom.xml to invalidate cache when dependencies change.
+      # Uses fallback restore keys to still get partial cache matches when possible.
+      - name: Cache Maven packages # This gives a name to the step for easier readability in GitHub Actions logs.
+        uses: actions/cache@v3 # This tells GitHub to use the official actions/cache action (version 3), which provides built-in support for caching dependencies or build outputs.
+        with: # Specifies the inputs for the cache action.
+          # This is the local path where Maven stores its downloaded dependencies (the Maven repository).
+          # ~/.m2 means "inside the home directory of the user on the runner".
+          path: ~/.m2
+
+          # This is the unique cache key. GitHub uses it to determine whether it can reuse a previously saved cache or not.
+          # Breakdown:
+          # ${{ runner.os }} → Ensures the cache is specific to the operating system (e.g., ubuntu-latest, windows-latest).
+          # maven- → A constant prefix to identify the type of cache.
+          # ${{ hashFiles('**/pom.xml') }} → Generates a hash based on the content of all pom.xml files in the repo.
+          # If your Maven configuration (i.e., dependencies) changes, the hash will change, and GitHub will create a new cache.
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+
+          # Used for partial cache hits. If the exact cache key isn’t found, GitHub tries to find the closest match using these restore keys.
+          # ${{ runner.os }}-maven- → This means: “If an exact match for the key isn't found, restore any cache that starts with this prefix.”
+          # This is useful because it allows fallback to older (but possibly still useful) caches even if the exact pom.xml hash changed.
+          restore-keys: |
+            ${{ runner.os }}-maven-      
 
       - name: Build with Maven
+        # This step builds your Java project using Maven by running the command:
         run: mvn clean install

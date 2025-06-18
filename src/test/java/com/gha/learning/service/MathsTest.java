@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MathsTest {
 
-    maths math = new maths(); // Instance of the class under test
+    Maths math = new Maths(); // Instance of the class under test
 
     @Test
     void testAdd() {
