@@ -111,9 +111,10 @@ jobs:
         # This ensures the step always runs, even if earlier steps fail. Useful if you want coverage to be reported no matter what.
         if: always()
         # This specifies you're using a pre-built GitHub Action called code-coverage-reporter-action from the Flex organization, version v4.
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         # Configuration inputs for the action:
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           # Auto-generated GitHub token provided by Actions.
           # Used for authenticating to make API calls (e.g., to comment on PRs).
           github_token: ${{ secrets.GITHUB_TOKEN }}
