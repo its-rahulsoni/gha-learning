@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      # This setting tells GitHub Actions not to cancel the remaining matrix jobs if one of them fails.
       fail-fast: false
       matrix:
         language:
