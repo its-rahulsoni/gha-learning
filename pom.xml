@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.gha.learning</groupId>
 	<artifactId>gha-learning</artifactId>
-	<version>0.0.1-SNAPSHOT</version>\
+	<version>0.0.1-SNAPSHOT</version>
 	<name>gha-learning-tutorials</name>
 	<description>Demo project for GHA tutorials</description>
 	<url/>
