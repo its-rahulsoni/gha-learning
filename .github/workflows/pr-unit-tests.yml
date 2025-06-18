@@ -76,6 +76,15 @@ jobs:
           # instead of re-downloading them every time.
           cache: 'maven'
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npx jest --coverage
+
       #✅ Summary:
       # This section:
       # Speeds up build times by caching .m2 (Maven dependencies).
