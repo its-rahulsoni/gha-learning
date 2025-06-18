@@ -114,6 +114,7 @@ jobs:
         uses: codecov/codecov-action@v5
         # Configuration inputs for the action:
         with:
+          # Optional, required for private repos, as per docs.
           token: ${{ secrets.CODECOV_TOKEN }}
           # Auto-generated GitHub token provided by Actions.
           # Used for authenticating to make API calls (e.g., to comment on PRs).
