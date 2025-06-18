@@ -111,7 +111,7 @@ jobs:
         # This ensures the step always runs, even if earlier steps fail. Useful if you want coverage to be reported no matter what.
         if: always()
         # This specifies you're using a pre-built GitHub Action called code-coverage-reporter-action from the Flex organization, version v4.
-        uses: Flex/code-coverage-reporter-action@v4
+        uses: FlexDevelopment/code-coverage-reporter-action@v4
         # Configuration inputs for the action:
         with:
           # Auto-generated GitHub token provided by Actions.
