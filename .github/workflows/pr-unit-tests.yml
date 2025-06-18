@@ -76,15 +76,6 @@ jobs:
           # instead of re-downloading them every time.
           cache: 'maven'
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
-        run: npx jest --coverage
-
       #✅ Summary:
       # This section:
       # Speeds up build times by caching .m2 (Maven dependencies).
@@ -115,47 +106,10 @@ jobs:
         # This step builds your Java project using Maven by running the command:
         run: mvn clean test
 
-      # This is just a human-readable label for the step. Appears in the Actions tab UI.
-      - name: Code Coverage Reporter Action
-        # This ensures the step always runs, even if earlier steps fail. Useful if you want coverage to be reported no matter what.
-        if: always()
-        # This specifies you're using a pre-built GitHub Action called code-coverage-reporter-action from the Flex organization, version v4.
+      - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
-        # Configuration inputs for the action:
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          # Auto-generated GitHub token provided by Actions.
-          # Used for authenticating to make API calls (e.g., to comment on PRs).
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Secret key for authenticating with an external coverage reporting service (likely Elasticsearch or Flex’s backend).
-          # Stored in your repository secrets.
-          # ✅ Do you need this API key?
-          # Optional: You can run the Flex/code-coverage-reporter-action without the API key — it will still post comments on the PR using GITHUB_TOKEN,
-          # but features like advanced history tracking and dashboards require the API key.
-          # apiKey: ${{ secrets.CODE_COVERAGE_REPORTER_ES_API_KEY }}
-          # Indicates this is a single-module project or only one coverage report is expected.
-          # Prevents merging multiple reports.
-          single_build: true
-          # Logical name of the module (used for organizing reports, comments, or UI display).
-          module_name: gha-learning
-          # Path to the directory where the generated coverage reports (like HTML or XML) are located.
-          # This path must exist after the test/coverage build step
-          ccr_path: target/site/jacoco
-          # The actual coverage report file (typically in XML format).
-          ccr_file: jacoco.xml
-          # Specifies the format/type of report. Supports tools like:
-          # jacoco, cobertura, scoverage, etc.
-          coverage_reporter: jacoco
-          # Determines how the PR comment is formatted:
-          # overview – summary
-          # break – line breaks
-          # url – link to full report
-          # Controls visual layout of the comment posted on the PR.
-          comment_structure: overview.break.url
-          # Indicates it should calculate code coverage differences (diffs) between the current PR and the base branch.
-          # This helps reviewers see if coverage improved or dropped due to the PR.
-          workflow: diff
-
+        env:
+          CODECOV_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 #🧠 In Simple Terms:
 # This workflow automatically runs unit tests whenever someone opens or updates a PR that is trying to merge into main or master.
