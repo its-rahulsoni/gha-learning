@@ -32,8 +32,13 @@ jobs:
     secrets: inherit
 
   deploy:
+    # Ex:- needs: [build-and-push, test-suite]
+    # This tells GitHub Actions: "Only run this job after these jobs complete successfully":
+    # build-and-push
+    # test-suite
+    # If either of those jobs fail, pipeline-trigger will be skipped, regardless of the if condition.
     needs: trigger-build   # ✅ Waits for trigger-build job to finish successfully
-   # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -61,16 +66,16 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "Logging in to ECR..."
-            aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_REGISTRY}
+            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
             
-            echo "Pulling image ${{ steps.tag.outputs.IMAGE }}"
-            docker pull ${{ steps.tag.outputs.IMAGE }}
+            echo "Pulling image $ECR_REGISTRY/$ECR_REPOSITORY:latest"
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
             
             echo "Stopping & removing existing container (if any)..."
-            docker rm -f ${env.CONTAINER_NAME} || true
+            docker rm -f $CONTAINER_NAME || true
             
             echo "Running new container..."
-            docker run -d --name ${env.CONTAINER_NAME} -p ${env.APP_PORT}:8080 ${{ steps.tag.outputs.IMAGE }}
+            docker run -d --name $CONTAINER_NAME -p $APP_PORT:8080 $ECR_REGISTRY/$ECR_REPOSITORY:latest
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
           ECR_REGISTRY: ${{ env.ECR_REGISTRY }}
