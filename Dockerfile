@@ -8,7 +8,7 @@ ENV TZ=Asia/Kolkata
 WORKDIR /app
 
 # Add the Spring Boot JAR file to the container
-COPY target/service1-0.0.1-SNAPSHOT.jar /app/service1-0.0.1-SNAPSHOT.jar
+COPY target/gha-learning-0.0.1-SNAPSHOT.jar /app/gha-learning-0.0.1-SNAPSHOT.jar
 
 # Expose the port that the app runs on (usually 8080 for Spring Boot)
 EXPOSE 8080
