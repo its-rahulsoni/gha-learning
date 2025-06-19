@@ -88,6 +88,14 @@ jobs:
             echo "Stopping & removing existing container (if any)..."
             docker rm -f "$CONTAINER_NAME" || true
             
+            # 🛠️ Check and free port 8080
+            PORT_IN_USE=$(docker ps --filter "publish=8080" --format "{{.ID}}")
+            if [ ! -z "$PORT_IN_USE" ]; then
+            echo "Port 8080 is in use by container $PORT_IN_USE. Stopping it..."
+            docker rm -f "$PORT_IN_USE"
+            fi
+            
             echo "Running new container..."
             docker run -d --name "$CONTAINER_NAME" -p "$APP_PORT":8080 "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
 
