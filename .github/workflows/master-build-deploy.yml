@@ -45,7 +45,7 @@ jobs:
     # If either of those jobs fail, pipeline-trigger will be skipped, regardless of the if condition.
     needs: trigger-build   # ✅ Waits for trigger-build job to finish successfully
 #    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    if: ${{ github.event.inputs.skipPipelineTrigger == "false" }}
+    if: ${{ github.event.inputs.skipPipelineTrigger == 'false' }}
     runs-on: ubuntu-latest
 
     steps:
