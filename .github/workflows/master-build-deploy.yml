@@ -70,7 +70,14 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          # Amazon ECR requires the username to be exactly AWS when you authenticate using the CLI and a temporary auth token (i.e., password).
           script: |
+            AWS_REGION: "ap-south-1"
+            ECR_REGISTRY: "897722703663.dkr.ecr.ap-south-1.amazonaws.com"
+            ECR_REPOSITORY: "gha-learning"
+            CONTAINER_NAME: "gha-learning"
+            APP_PORT: "8080"
+            
             echo "Logging in to ECR..."
             aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
             
@@ -82,8 +89,5 @@ jobs:
             
             echo "Running new container..."
             docker run -d --name $CONTAINER_NAME -p $APP_PORT:8080 $ECR_REGISTRY/$ECR_REPOSITORY:latest
-        env:
-          AWS_REGION: ${{ env.AWS_REGION }}
-          ECR_REGISTRY: ${{ env.ECR_REGISTRY }}
-          CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
-          APP_PORT: ${{ env.APP_PORT }}
+
+
