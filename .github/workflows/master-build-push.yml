@@ -22,6 +22,17 @@ jobs:
         with:
           fetch:depth: 0
 
+      - name: Debug secrets (safely for debug only)
+        run: |
+          echo "ECR Registry: ${REG}X"
+          echo "ECR Repo: ${REPO}X"
+          echo "Full tag: ${REG}/${REPO}:${GITHUB_SHA}X"
+        env:
+          REG: ${{ secrets.ECR_REGISTRY }}
+          REPO: ${{ secrets.ECR_REPOSITORY }}
+          GITHUB_SHA: ${{ github.sha }}
+
+
       - name: Set up Java 17
         uses: actions/setup-java@v3
         with:
@@ -49,16 +60,6 @@ jobs:
       - name: Debug Docker tag
         run:
           echo "Debug Docker tag-  ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
-
-      - name: Temporarily expose ECR values (for debugging only)
-        run: |
-          echo "ECR Registry: $REG"
-          echo "ECR Repo: $REPO"
-          echo "Full Tag: $REG/$REPO:${{ github.sha }}"
-        env:
-          REG: ${{ secrets.ECR_REGISTRY }}
-          REPO: ${{ secrets.ECR_REPOSITORY }}
-
 
 
       - name: Build, tag, and push image to ECR
