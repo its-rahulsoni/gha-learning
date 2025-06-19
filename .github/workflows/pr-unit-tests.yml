@@ -7,11 +7,13 @@ name: Unit Tests
 on:
   # This means the workflow will run when a pull request (PR) is opened, updated, or synchronized (e.g., new commits pushed) targeting the specified branches.
   pull_request:
+    branches: [ temp ]
     # This restricts the trigger to PRs that are targeting the main or master branches only.
     # Example:
     # ✅ If a PR is made from feature/login → main: this workflow runs
     # ❌ If a PR is made from feature/login → develop: this workflow does not run
-    branches: [ main,master ]
+    #branches: [ main,master ]
+
 
 # This defines a block for all jobs in the workflow.
 # A workflow can have one or many jobs, each performing independent or dependent tasks.

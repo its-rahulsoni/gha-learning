@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+  #pull_request:
+    #branches: [ main, master ]
   schedule:                      # optional nightly scan
     - cron: '0 2 * * *'          # every day at 02:00 UTC
 
