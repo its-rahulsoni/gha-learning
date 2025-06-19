@@ -1,5 +1,5 @@
 # .github/workflows/deploy.yml
-name: Deploy to EC2
+name: Build and Deploy to EC2
 
 ###########################################################################
 # 1️⃣  auto‑trigger when build.yml completes successfully. TO BE NOTED.
