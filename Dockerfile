@@ -14,4 +14,4 @@ COPY target/gha-learning-0.0.1-SNAPSHOT.jar /app/gha-learning-0.0.1-SNAPSHOT.jar
 EXPOSE 8080
 
 # Run the JAR file
-ENTRYPOINT ["java", "-jar", "/app/service1-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "/app/gha-learning-0.0.1-SNAPSHOT.jar"]
