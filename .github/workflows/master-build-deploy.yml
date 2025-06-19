@@ -1,0 +1,77 @@
+# .github/workflows/deploy.yml
+name: Build and Deploy to EC2
+
+###########################################################################
+# 1️⃣  auto‑trigger when build.yml completes successfully. TO BE NOTED.
+#on:
+#  workflow_run:
+#    workflows: [ "Build and Push to ECR" ]
+#    types: [ completed ]
+###########################################################################
+#  --‑ you can also allow manual runs:
+#  workflow_dispatch:
+
+# on: → defines when the workflow should run.
+# workflow_dispatch: → means the workflow can be triggered manually by a user (like you) via the GitHub web interface.
+on:
+  workflow_dispatch:  # ⬅️ Enables manual trigger from GitHub UI
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: 897722703663.dkr.ecr.ap-south-1.amazonaws.com
+  ECR_REPOSITORY: gha-learning
+  CONTAINER_NAME: gha-learning-app
+  APP_PORT: 8080       # change if your Spring app listens elsewhere
+
+jobs:
+  trigger-build:
+    name: Trigger Docker Image Build
+    uses: ./.github/workflows/build.yml
+    # When you're using workflow_call to invoke another workflow (like calling build.yml from deploy.yml), the secrets: inherit directive tells
+    # GitHub to pass all available secrets from the caller workflow (e.g., deploy) to the called workflow (e.g., build).
+    secrets: inherit
+
+  deploy:
+   # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1.  Configure AWS (for ECR login)
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      # 2.  Login to ECR (needed locally so we can `docker pull`)
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      # 3.  Pull image on the runner (optional) & copy tag to env
+      - name: Resolve image tag
+        id: tag
+        run: echo "IMAGE=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest" >> $GITHUB_OUTPUT
+
+      # 4.  SSH into EC2 and run the container
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "Logging in to ECR..."
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+            
+            echo "Pulling image ${{ steps.tag.outputs.IMAGE }}"
+            docker pull ${{ steps.tag.outputs.IMAGE }}
+            
+            echo "Stopping & removing existing container (if any)..."
+            docker rm -f ${CONTAINER_NAME} || true
+            
+            echo "Running new container..."
+            docker run -d --name ${CONTAINER_NAME} -p ${APP_PORT}:8080 ${{ steps.tag.outputs.IMAGE }}
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
+          ECR_REGISTRY: ${{ env.ECR_REGISTRY }}
+          CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
+          APP_PORT: ${{ env.APP_PORT }}
