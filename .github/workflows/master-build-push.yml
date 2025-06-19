@@ -46,6 +46,10 @@ jobs:
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Debug Docker tag
+        run:
+          echo "Tag being used: ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"
+
       - name: Build, tag, and push image to ECR
         uses: docker/build-push-action@v4
         with:
