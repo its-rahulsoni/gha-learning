@@ -15,6 +15,12 @@ name: Build and Deploy to EC2
 # workflow_dispatch: → means the workflow can be triggered manually by a user (like you) via the GitHub web interface.
 on:
   workflow_dispatch:  # ⬅️ Enables manual trigger from GitHub UI
+    inputs:
+      skipPipelineTrigger:
+        description: Skip pipeline trigger
+        type: boolean
+        required: false
+        default: false
 
 env:
   AWS_REGION: ap-south-1
