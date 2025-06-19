@@ -26,7 +26,7 @@ env:
 jobs:
   trigger-build:
     name: Trigger Docker Image Build
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/master-build-push.yml
     # When you're using workflow_call to invoke another workflow (like calling build.yml from deploy.yml), the secrets: inherit directive tells
     # GitHub to pass all available secrets from the caller workflow (e.g., deploy) to the called workflow (e.g., build).
     secrets: inherit
