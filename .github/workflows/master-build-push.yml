@@ -22,15 +22,18 @@ jobs:
         with:
           fetch:depth: 0
 
-      - name: Debug secrets (safely for debug only)
+      - name: Debug Secrets to File
         run: |
-          echo "ECR Registry: ${REG}X"
-          echo "ECR Repo: ${REPO}X"
-          echo "Full tag: ${REG}/${REPO}:${GITHUB_SHA}X"
-        env:
-          REG: ${{ secrets.ECR_REGISTRY }}
-          REPO: ${{ secrets.ECR_REPOSITORY }}
-          GITHUB_SHA: ${{ github.sha }}
+          echo "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}" > secrets.txt
+          echo "ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}" >> secrets.txt
+          echo "FULL_TAG=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}" >> secrets.txt
+
+      - name: Upload Debug Secrets
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-secrets
+          path: secrets.txt
+
 
 
       - name: Set up Java 17
